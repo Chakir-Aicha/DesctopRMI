@@ -100,7 +100,7 @@ public class Client extends JFrame implements ActionListener {
         @Override
         public void keyTyped(KeyEvent e) {
             try {
-                System.out.println("Server: Mouse entered");
+                System.out.println("Server: key typed");
                 screenManager.keyTyped(e.getKeyCode());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
@@ -110,7 +110,7 @@ public class Client extends JFrame implements ActionListener {
         @Override
         public void keyPressed(KeyEvent e) {
             try {
-                System.out.println("Server: Mouse entered");
+                System.out.println("Server: key pressed");
                 screenManager.pressKey(e.getKeyCode());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
@@ -120,7 +120,7 @@ public class Client extends JFrame implements ActionListener {
         @Override
         public void keyReleased(KeyEvent e) {
             try {
-                System.out.println("Server: Mouse entered");
+                System.out.println("Server: key released");
                 screenManager.releaseKey(e.getKeyCode());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
@@ -151,6 +151,7 @@ public class Client extends JFrame implements ActionListener {
         @Override
         public void mouseClicked(MouseEvent e) {
             try {
+                System.out.println("mouse clicked");
                 screenManager.clickMouse(e.getButton());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
@@ -162,6 +163,7 @@ public class Client extends JFrame implements ActionListener {
             try {
                 int button = e.getButton();
                 screenManager.mousePressed(button);
+                System.out.println("mouse pressed");
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
@@ -172,6 +174,7 @@ public class Client extends JFrame implements ActionListener {
             try {
                 int button = e.getButton();
                 screenManager.mouseReleased(button);
+                System.out.println("mouse released");
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }

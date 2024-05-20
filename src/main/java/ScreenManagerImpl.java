@@ -148,7 +148,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     @Override
     public void mouseDragged(int x, int y) throws RemoteException {
         robot.mouseMove(x, y);
-        System.out.println("Server: Mouse entered");
+        System.out.println("Server: Mouse dragged");
     }
     @Override
     public double getWidth() throws RemoteException {
