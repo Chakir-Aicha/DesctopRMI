@@ -152,7 +152,9 @@ public class Client extends JFrame implements ActionListener {
         public void mouseClicked(MouseEvent e) {
             try {
                 System.out.println("mouse clicked");
-                screenManager.clickMouse(e.getButton());
+                int x=e.getX();
+                int y=e.getY();
+                screenManager.clickMouse(x,y);
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
@@ -162,7 +164,9 @@ public class Client extends JFrame implements ActionListener {
         public void mousePressed(MouseEvent e) {
             try {
                 int button = e.getButton();
-                screenManager.mousePressed(button);
+                int x=e.getX();
+                int y=e.getY();
+                screenManager.mousePressed(x,y,button);
                 System.out.println("mouse pressed");
             } catch (RemoteException ex) {
                 ex.printStackTrace();
@@ -173,7 +177,9 @@ public class Client extends JFrame implements ActionListener {
         public void mouseReleased(MouseEvent e) {
             try {
                 int button = e.getButton();
-                screenManager.mouseReleased(button);
+                int x=e.getX();
+                int y=e.getY();
+                screenManager.mouseReleased(x,y,button);
                 System.out.println("mouse released");
             } catch (RemoteException ex) {
                 ex.printStackTrace();

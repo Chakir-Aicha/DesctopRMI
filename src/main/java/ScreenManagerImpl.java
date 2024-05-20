@@ -54,22 +54,12 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     }
 
     @Override
-    public void clickMouse(int button) throws RemoteException {
-        int mask = InputEvent.BUTTON1_DOWN_MASK;
-        switch (button) {
-            case 1:
-                mask = InputEvent.BUTTON1_DOWN_MASK;
-                break;
-            case 2:
-                mask = InputEvent.BUTTON2_DOWN_MASK;
-                break;
-            case 3:
-                mask = InputEvent.BUTTON3_DOWN_MASK;
-                break;
-        }
-        robot.mousePress(mask);
-        robot.mouseRelease(mask);
+    public void clickMouse(int x, int y) throws RemoteException {
+        robot.mouseMove(x, y);
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
+
 
     public byte[] sendFile(String filePath) throws RemoteException {
         try (FileInputStream fis = new FileInputStream(filePath)) {
@@ -102,8 +92,8 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     }
 
     @Override
-    public void mousePressed(int button) throws RemoteException {
-        int mask = InputEvent.BUTTON1_DOWN_MASK;
+    public void mousePressed(int x, int y, int button) throws RemoteException {
+        int mask = 0;
         switch (button) {
             case 1:
                 mask = InputEvent.BUTTON1_DOWN_MASK;
@@ -115,12 +105,13 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
                 mask = InputEvent.BUTTON3_DOWN_MASK;
                 break;
         }
+        robot.mouseMove(x,y);
         robot.mousePress(mask);
     }
 
     @Override
-    public void mouseReleased(int button) throws RemoteException {
-        int mask = InputEvent.BUTTON1_DOWN_MASK;
+    public void mouseReleased(int x, int y, int button) throws RemoteException {
+        int mask = 0;
         switch (button) {
             case 1:
                 mask = InputEvent.BUTTON1_DOWN_MASK;
@@ -132,6 +123,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
                 mask = InputEvent.BUTTON3_DOWN_MASK;
                 break;
         }
+        robot.mouseMove(x,y);
         robot.mouseRelease(mask);
     }
 
