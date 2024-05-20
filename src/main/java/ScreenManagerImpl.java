@@ -55,7 +55,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
 
     @Override
     public void clickMouse(int button) throws RemoteException {
-        int mask = 0;
+        int mask = InputEvent.BUTTON1_DOWN_MASK;
         switch (button) {
             case 1:
                 mask = InputEvent.BUTTON1_DOWN_MASK;
@@ -103,7 +103,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
 
     @Override
     public void mousePressed(int button) throws RemoteException {
-        int mask = 0;
+        int mask = InputEvent.BUTTON1_DOWN_MASK;
         switch (button) {
             case 1:
                 mask = InputEvent.BUTTON1_DOWN_MASK;
@@ -120,7 +120,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
 
     @Override
     public void mouseReleased(int button) throws RemoteException {
-        int mask = 0;
+        int mask = InputEvent.BUTTON1_DOWN_MASK;
         switch (button) {
             case 1:
                 mask = InputEvent.BUTTON1_DOWN_MASK;
@@ -150,7 +150,6 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
         robot.mouseMove(x, y);
         System.out.println("Server: Mouse entered");
     }
-
     @Override
     public double getWidth() throws RemoteException {
         return Toolkit.getDefaultToolkit().getScreenSize().getWidth();
