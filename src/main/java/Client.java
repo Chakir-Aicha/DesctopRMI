@@ -70,7 +70,6 @@ public class Client extends JFrame implements ActionListener {
             setTitle("Remote Screen Viewer");
             setSize(800, 600);
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
             imageLabel = new JLabel();
             add(new JScrollPane(imageLabel));
             addMouseListener(this);
@@ -78,7 +77,6 @@ public class Client extends JFrame implements ActionListener {
             addKeyListener(this);
             setFocusable(true);
             setFocusTraversalKeysEnabled(false);
-
             // Lancer un thread pour mettre à jour périodiquement l'image
             new Timer(1000 / 10, e -> updateImage()).start(); // Mettre à jour l'image 10 fois par seconde
 

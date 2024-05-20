@@ -16,6 +16,11 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     protected ScreenManagerImpl(String password) throws RemoteException {
         super();
         this.password=password;
+        try {
+            robot=new Robot();
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -28,8 +33,6 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     @Override
     public byte[] sendScreen() throws RemoteException {
         try {
-            // Créer un objet Robot pour capturer l'écran
-            robot = new Robot();
             // Déterminer la taille de l'écran
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             // Capturer l'écran
@@ -150,11 +153,11 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
 
     @Override
     public double getWidth() throws RemoteException {
-        return this.width;
+        return Toolkit.getDefaultToolkit().getScreenSize().getWidth();
     }
 
     @Override
     public double getHeight() throws RemoteException {
-        return this.height;
+        return Toolkit.getDefaultToolkit().getScreenSize().getHeight();
     }
 }
