@@ -38,7 +38,7 @@ public class Client extends JFrame implements ActionListener {
         if (e.getSource() == connectButton) {
             try {
                 String password = passwordField.getText();
-                Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+                Registry registry = LocateRegistry.getRegistry("192.168.137.1", 1099);
                 screen = (ScreenManager) registry.lookup("ScreenManager");
 
                 if (screen.checkPassword(password)) {
@@ -61,7 +61,7 @@ public class Client extends JFrame implements ActionListener {
         new Client();
     }
 
-    public class ImageWindow extends JFrame implements KeyListener,MouseMotionListener {
+    public class ImageWindow extends JFrame implements KeyListener, MouseListener,MouseMotionListener {
         private ScreenManager screenManager;
         private JLabel imageLabel;
 
@@ -73,20 +73,11 @@ public class Client extends JFrame implements ActionListener {
 
             imageLabel = new JLabel();
             add(new JScrollPane(imageLabel));
-
-            // Ajouter des écouteurs d'événements pour la souris et le clavier
-            addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    try {
-                        int button = e.getButton();
-                        System.out.println("Mouse clicked: button=" + button);
-                        screenManager.clickMouse(button);
-                    } catch (RemoteException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
+            addMouseListener(this);
+            addMouseMotionListener(this);
+            addKeyListener(this);
+            setFocusable(true);
+            setFocusTraversalKeysEnabled(false);
 
             // Lancer un thread pour mettre à jour périodiquement l'image
             new Timer(1000 / 10, e -> updateImage()).start(); // Mettre à jour l'image 10 fois par seconde
@@ -156,6 +147,46 @@ public class Client extends JFrame implements ActionListener {
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
+        }
+
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            try {
+                screenManager.clickMouse(e.getButton());
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            try {
+                int button = e.getButton();
+                screenManager.mousePressed(button);
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            try {
+                int button = e.getButton();
+                screenManager.mouseReleased(button);
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
         }
     }
 
