@@ -22,9 +22,6 @@ public class Client extends JFrame implements ActionListener {
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
         JPanel panel = new JPanel();
-        panel.add(new JLabel("Server IP:"));
-        ipField = new JTextField(15);
-        panel.add(ipField);
         panel.add(new JLabel("Password:"));
         passwordField = new JTextField(15);
         panel.add(passwordField);
@@ -40,9 +37,8 @@ public class Client extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == connectButton) {
             try {
-                String serverIP = ipField.getText();
                 String password = passwordField.getText();
-                Registry registry = LocateRegistry.getRegistry(serverIP, 1099);
+                Registry registry = LocateRegistry.getRegistry("localhost", 1099);
                 screen = (ScreenManager) registry.lookup("ScreenManager");
 
                 if (screen.checkPassword(password)) {
@@ -65,7 +61,7 @@ public class Client extends JFrame implements ActionListener {
         new Client();
     }
 
-    public class ImageWindow extends JFrame {
+    public class ImageWindow extends JFrame implements KeyListener,MouseMotionListener {
         private ScreenManager screenManager;
         private JLabel imageLabel;
 
@@ -84,18 +80,8 @@ public class Client extends JFrame implements ActionListener {
                 public void mouseClicked(MouseEvent e) {
                     try {
                         int button = e.getButton();
+                        System.out.println("Mouse clicked: button=" + button);
                         screenManager.clickMouse(button);
-                    } catch (RemoteException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-
-            addMouseMotionListener(new MouseMotionAdapter() {
-                @Override
-                public void mouseMoved(MouseEvent e) {
-                    try {
-                        screenManager.moveMouse(e.getX(), e.getY());
                     } catch (RemoteException ex) {
                         ex.printStackTrace();
                     }
@@ -120,7 +106,57 @@ public class Client extends JFrame implements ActionListener {
             }
         }
 
-        // Vous pouvez également ajouter d'autres méthodes pour gérer les événements du clavier si nécessaire
+
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+            try {
+                System.out.println("Server: Mouse entered");
+                screenManager.keyTyped(e.getKeyCode());
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            try {
+                System.out.println("Server: Mouse entered");
+                screenManager.pressKey(e.getKeyCode());
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            try {
+                System.out.println("Server: Mouse entered");
+                screenManager.releaseKey(e.getKeyCode());
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            try {
+                System.out.println("Server: Mouse dragged");
+                screenManager.mouseDragged(e.getX(), e.getY());
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            try {
+                System.out.println("Server: Mouse mouved");
+                screenManager.moveMouse(e.getX(), e.getY());
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
 }

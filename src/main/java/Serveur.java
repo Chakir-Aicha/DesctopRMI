@@ -101,7 +101,6 @@ public class Serveur extends JFrame implements ActionListener {
         }
     }
     private void showSendFileButton() {
-        // Initialiser et ajouter le bouton "Send File"
         sendFileButton = new JButton("Send File");
         sendFileButton.addActionListener(this);
         add(sendFileButton);

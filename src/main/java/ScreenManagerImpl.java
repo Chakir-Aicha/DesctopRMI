@@ -47,6 +47,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     @Override
     public void moveMouse(int x, int y) throws RemoteException {
         robot.mouseMove(x, y);
+        System.out.println("Server: Mouse entered");
     }
 
     @Override
@@ -76,6 +77,75 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
             System.err.println("Erreur lors de la demande du fichier: " + e.getMessage());
             throw new RemoteException("Erreur lors de la demande du fichier", e);
         }
+    }
+
+    @Override
+    public void pressKey(int keyCode) throws RemoteException {
+        robot.keyPress(keyCode);
+        System.out.println("Server: Mouse entered");
+    }
+
+    @Override
+    public void releaseKey(int keyCode) throws RemoteException {
+        robot.keyRelease(keyCode);
+        System.out.println("Server: Mouse entered");
+    }
+
+    @Override
+    public void keyTyped(int keyChar) throws RemoteException {
+        robot.keyPress(keyChar);
+        robot.keyRelease(keyChar);
+        System.out.println("Server: Mouse entered");
+    }
+
+    @Override
+    public void mousePressed(int button) throws RemoteException {
+        int mask = 0;
+        switch (button) {
+            case 1:
+                mask = InputEvent.BUTTON1_DOWN_MASK;
+                break;
+            case 2:
+                mask = InputEvent.BUTTON2_DOWN_MASK;
+                break;
+            case 3:
+                mask = InputEvent.BUTTON3_DOWN_MASK;
+                break;
+        }
+        robot.mousePress(mask);
+    }
+
+    @Override
+    public void mouseReleased(int button) throws RemoteException {
+        int mask = 0;
+        switch (button) {
+            case 1:
+                mask = InputEvent.BUTTON1_DOWN_MASK;
+                break;
+            case 2:
+                mask = InputEvent.BUTTON2_DOWN_MASK;
+                break;
+            case 3:
+                mask = InputEvent.BUTTON3_DOWN_MASK;
+                break;
+        }
+        robot.mouseRelease(mask);
+    }
+
+    @Override
+    public void mouseEntered() throws RemoteException {
+
+    }
+
+    @Override
+    public void mouseExited() throws RemoteException {
+
+    }
+
+    @Override
+    public void mouseDragged(int x, int y) throws RemoteException {
+        robot.mouseMove(x, y);
+        System.out.println("Server: Mouse entered");
     }
 
     @Override
