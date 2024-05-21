@@ -44,7 +44,11 @@ public class Client extends JFrame implements ActionListener {
                 if (screen.checkPassword(password)) {
                     // Si la connexion est réussie, ouvrez la fenêtre d'affichage de l'image
                     EventQueue.invokeLater(() -> {
-                        new ImageWindow(screen);
+                        try {
+                            new ImageWindow(screen);
+                        } catch (RemoteException ex) {
+                            ex.printStackTrace();
+                        }
                         dispose(); // Ferme la fenêtre de connexion
                     });
                 } else {
@@ -64,8 +68,9 @@ public class Client extends JFrame implements ActionListener {
     public class ImageWindow extends JFrame implements KeyListener, MouseListener,MouseMotionListener {
         private ScreenManager screenManager;
         private JLabel imageLabel;
+        private double localWidth, localHeight, remoteWidth, remoteHeight;
 
-        public ImageWindow(ScreenManager screenManager) {
+        public ImageWindow(ScreenManager screenManager) throws RemoteException {
             this.screenManager = screenManager;
             setTitle("Remote Screen Viewer");
             setSize(800, 600);
@@ -79,10 +84,19 @@ public class Client extends JFrame implements ActionListener {
             setFocusTraversalKeysEnabled(false);
             // Lancer un thread pour mettre à jour périodiquement l'image
             new Timer(1000 / 10, e -> updateImage()).start(); // Mettre à jour l'image 10 fois par seconde
-
+            localWidth = getWidth();
+            localHeight = getHeight();
+            remoteWidth = screenManager.getWidth();
+            remoteHeight = screenManager.getHeight();
             setVisible(true);
         }
-
+        private Point getRemoteCoordinates(int localX, int localY) {
+            double scaleX = remoteWidth / localWidth;
+            double scaleY = remoteHeight / localHeight;
+            int remoteX = (int) (localX * scaleX);
+            int remoteY = (int) (localY * scaleY);
+            return new Point(remoteX, remoteY);
+        }
         private void updateImage() {
             try {
                 byte[] imageBytes = screenManager.sendScreen();
@@ -152,9 +166,8 @@ public class Client extends JFrame implements ActionListener {
         public void mouseClicked(MouseEvent e) {
             try {
                 System.out.println("mouse clicked");
-                int x=e.getX();
-                int y=e.getY();
-                screenManager.clickMouse(x,y);
+                Point p = getRemoteCoordinates(e.getX(), e.getY());
+                screenManager.clickMouse(p.x,p.y);
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
@@ -164,9 +177,8 @@ public class Client extends JFrame implements ActionListener {
         public void mousePressed(MouseEvent e) {
             try {
                 int button = e.getButton();
-                int x=e.getX();
-                int y=e.getY();
-                screenManager.mousePressed(x,y,button);
+                Point p = getRemoteCoordinates(e.getX(), e.getY());
+                screenManager.mousePressed(p.x,p.y,button);
                 System.out.println("mouse pressed");
             } catch (RemoteException ex) {
                 ex.printStackTrace();
@@ -177,9 +189,8 @@ public class Client extends JFrame implements ActionListener {
         public void mouseReleased(MouseEvent e) {
             try {
                 int button = e.getButton();
-                int x=e.getX();
-                int y=e.getY();
-                screenManager.mouseReleased(x,y,button);
+                Point p = getRemoteCoordinates(e.getX(), e.getY());
+                screenManager.mouseReleased(p.x,p.y,button);
                 System.out.println("mouse released");
             } catch (RemoteException ex) {
                 ex.printStackTrace();
