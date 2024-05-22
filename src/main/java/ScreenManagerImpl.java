@@ -55,6 +55,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
 
     @Override
     public void clickMouse(int x, int y) throws RemoteException {
+        System.out.println("Server: Clicking mouse at (" + x + ", " + y + ")");
         robot.mouseMove(x, y);
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
@@ -105,6 +106,7 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
                 mask = InputEvent.BUTTON3_DOWN_MASK;
                 break;
         }
+        System.out.println("Server: Mouse pressed at (" + x + ", " + y + ") with button " + button);
         robot.mouseMove(x,y);
         robot.mousePress(mask);
     }
@@ -150,5 +152,10 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     @Override
     public double getHeight() throws RemoteException {
         return Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+    }
+
+    @Override
+    public void mousereceive(int[] coordinates) throws RemoteException {
+        this.robot.mouseMove(coordinates[0],coordinates[1]);
     }
 }

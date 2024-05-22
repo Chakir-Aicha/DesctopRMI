@@ -6,6 +6,7 @@ public interface ScreenManager extends Remote {
         public byte[] sendScreen() throws RemoteException;
         public double getWidth() throws RemoteException;
         public double getHeight() throws RemoteException;
+        void mousereceive(int[] mouseCoordinates) throws RemoteException;
         void moveMouse(int x, int y) throws RemoteException;
         void clickMouse(int x,int y) throws RemoteException;
         void pressKey(int keyCode) throws RemoteException;

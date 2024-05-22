@@ -77,8 +77,8 @@ public class Client extends JFrame implements ActionListener {
             setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             imageLabel = new JLabel();
             add(new JScrollPane(imageLabel));
-            addMouseListener(this);
-            addMouseMotionListener(this);
+            imageLabel.addMouseListener(this);
+            imageLabel.addMouseMotionListener(this);
             addKeyListener(this);
             setFocusable(true);
             setFocusTraversalKeysEnabled(false);
@@ -155,13 +155,12 @@ public class Client extends JFrame implements ActionListener {
         public void mouseMoved(MouseEvent e) {
             try {
                 System.out.println("Server: Mouse mouved");
-                screenManager.moveMouse(e.getX(), e.getY());
+                Point p = getRemoteCoordinates(e.getX(), e.getY());
+                screenManager.moveMouse(p.x, p.y);
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
-
         @Override
         public void mouseClicked(MouseEvent e) {
             try {
