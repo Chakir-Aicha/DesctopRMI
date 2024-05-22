@@ -2,9 +2,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -61,18 +59,27 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
 
-
-    public byte[] sendFile(String filePath) throws RemoteException {
-        try (FileInputStream fis = new FileInputStream(filePath)) {
-            byte[] fileData = new byte[(int) new File(filePath).length()];
+    @Override
+    public byte[] receivefile(String fileName) throws RemoteException {
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            byte[] fileData = new byte[(int) new File(fileName).length()];
             fis.read(fileData);
             return fileData;
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la demande du fichier: " + e.getMessage());
-            throw new RemoteException("Erreur lors de la demande du fichier", e);
+        } catch (IOException e) {
+            System.err.println("Error sending file: " + e.getMessage());
+            throw new RemoteException("Error sending file", e);
         }
     }
 
+    @Override
+    public void sendFile(String fileName, byte[] fileData) throws RemoteException {
+        try (FileOutputStream fos = new FileOutputStream(fileName)) {
+            fos.write(fileData);
+        } catch (IOException e) {
+            System.err.println("Error receiving file: " + e.getMessage());
+            throw new RemoteException("Error receiving file", e);
+        }
+    }
     @Override
     public void pressKey(int keyCode) throws RemoteException {
         robot.keyPress(keyCode);

@@ -71,33 +71,6 @@ public class Serveur extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             }
-        }else if (e.getSource() == sendFileButton) {
-            if (screenManager == null) {
-                JOptionPane.showMessageDialog(this, "Server is not connected. Please connect first.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            try {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                int returnValue = fileChooser.showOpenDialog(this);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    String filePath = selectedFile.getAbsolutePath();
-
-                    // Demande du fichier au client
-                    byte[] fileData = screenManager.sendFile(filePath);
-                    try (FileOutputStream fos = new FileOutputStream("received_" + selectedFile.getName())) {
-                        fos.write(fileData);
-                        JOptionPane.showMessageDialog(this, "File received and saved as " + "received_" + selectedFile.getName());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(this, "Error saving file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                        ex.printStackTrace();
-                    }
-                }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Error requesting file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            }
         }
     }
     private void showSendFileButton() {

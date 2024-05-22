@@ -17,5 +17,6 @@ public interface ScreenManager extends Remote {
         void mouseEntered() throws RemoteException;
         void mouseExited() throws RemoteException;
         void mouseDragged(int x, int y) throws RemoteException;
-        byte[] sendFile( String filePath) throws RemoteException;
+        void sendFile( String fileName , byte[] fileData) throws RemoteException;
+        byte[] receivefile(String fileName) throws RemoteException;
 }
