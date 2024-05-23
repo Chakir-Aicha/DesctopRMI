@@ -74,7 +74,7 @@ public class Serveur extends JFrame implements ActionListener {
                 ex.printStackTrace();
             }
         }
-        else if (e.getSource() == sendFileButton) {
+        if (e.getSource() == sendFileButton) {
             JFileChooser fileChooser = new JFileChooser();
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {

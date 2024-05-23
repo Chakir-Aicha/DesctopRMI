@@ -82,7 +82,6 @@ public class Client extends JFrame implements ActionListener {
             receiveFile();
         }
     }
-    // Ajoutez ces méthodes dans la classe Client
     private void sendFile() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
@@ -104,9 +103,9 @@ public class Client extends JFrame implements ActionListener {
             File file = fileChooser.getSelectedFile();
             try {
                 byte[] fileData = screen.receivefile(file.getName());
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(fileData);
-                fos.close();
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fos.write(fileData);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

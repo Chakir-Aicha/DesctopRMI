@@ -75,13 +75,13 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     }
     @Override
     public void sendFile(String fileName, byte[] fileData) throws RemoteException {
-        Path filePath = Paths.get(STORAGE_DIR, fileName);
-        try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
-            fos.write(fileData);
-            System.out.println("File saved: " + filePath.toAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            Path filePath = Paths.get(STORAGE_DIR, fileName);
+            try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+                fos.write(fileData);
+                System.out.println("File saved: " + filePath.toAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
     @Override
