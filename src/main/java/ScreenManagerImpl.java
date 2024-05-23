@@ -4,6 +4,8 @@ import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
@@ -14,10 +16,19 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     String password;
     Robot robot =null;
     private Map<String, byte[]> fileStore = new HashMap<>();
+    private static final String STORAGE_DIR = "server_files";
 
     protected ScreenManagerImpl(String password) throws RemoteException {
         super();
         this.password=password;
+        Path storagePath = Paths.get(STORAGE_DIR);
+        if (!Files.exists(storagePath)) {
+            try {
+                Files.createDirectory(storagePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             robot=new Robot();
         } catch (AWTException e) {
@@ -64,13 +75,24 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     }
     @Override
     public void sendFile(String fileName, byte[] fileData) throws RemoteException {
-        fileStore.put(fileName, fileData);
-        System.out.println("File received: " + fileName);
+        Path filePath = Paths.get(STORAGE_DIR, fileName);
+        try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+            fos.write(fileData);
+            System.out.println("File saved: " + filePath.toAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public byte[] receivefile(String fileName) throws RemoteException {
-        return fileStore.get(fileName);
+        Path filePath = Paths.get(STORAGE_DIR, fileName);
+        try {
+            return Files.readAllBytes(filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     @Override
     public void pressKey(int keyCode) throws RemoteException {
