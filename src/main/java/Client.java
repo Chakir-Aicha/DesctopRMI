@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.rmi.registry.LocateRegistry;
@@ -81,46 +82,38 @@ public class Client extends JFrame implements ActionListener {
             receiveFile();
         }
     }
-
-    private void receiveFile() {
-        String fileName = JOptionPane.showInputDialog(this, "Enter file name to receive:");
-        if (fileName != null && !fileName.isEmpty()) {
-            try {
-                byte[] fileData = screen.receivefile(fileName);
-                if (fileData != null) {
-                    JFileChooser fileChooser = new JFileChooser();
-                    fileChooser.setSelectedFile(new File(fileName));
-                    int returnValue = fileChooser.showSaveDialog(this);
-                    if (returnValue == JFileChooser.APPROVE_OPTION) {
-                        File selectedFile = fileChooser.getSelectedFile();
-                        Files.write(selectedFile.toPath(), fileData);
-                        JOptionPane.showMessageDialog(this, "File received and saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "File not found on server!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error receiving file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-
+    // Ajoutez ces méthodes dans la classe Client
     private void sendFile() {
         JFileChooser fileChooser = new JFileChooser();
-        int returnValue = fileChooser.showOpenDialog(this);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
             try {
-                byte[] fileData = Files.readAllBytes(selectedFile.toPath());
-                screen.sendFile(selectedFile.getName(), fileData);
-                JOptionPane.showMessageDialog(this, "File sent successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error sending file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                byte[] fileData = Files.readAllBytes(file.toPath());
+                screen.sendFile(file.getName(), fileData);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
+
+    private void receiveFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+                byte[] fileData = screen.receivefile(file.getName());
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(fileData);
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     public static void main(String[] args) {
         new Client();
     }

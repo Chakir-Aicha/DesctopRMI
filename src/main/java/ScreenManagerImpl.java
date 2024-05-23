@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -58,26 +59,30 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     }
-
     @Override
-    public byte[] receivefile(String fileName) throws RemoteException {
-        try (FileInputStream fis = new FileInputStream(fileName)) {
-            byte[] fileData = new byte[(int) new File(fileName).length()];
-            fis.read(fileData);
-            return fileData;
+    public void sendFile(String fileName, byte[] fileData) throws RemoteException {
+        try {
+            File file = new File(fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(fileData);
+            fos.close();
+            System.out.println("File " + fileName + " received successfully.");
         } catch (IOException e) {
-            System.err.println("Error sending file: " + e.getMessage());
-            throw new RemoteException("Error sending file", e);
+            System.err.println("Error receiving file: " + e.getMessage());
+            throw new RemoteException("Error receiving file", e);
         }
     }
 
     @Override
-    public void sendFile(String fileName, byte[] fileData) throws RemoteException {
-        try (FileOutputStream fos = new FileOutputStream(fileName)) {
-            fos.write(fileData);
+    public byte[] receivefile(String fileName) throws RemoteException {
+        try {
+            File file = new File(fileName);
+            byte[] fileData = Files.readAllBytes(file.toPath());
+            System.out.println("File " + fileName + " sent successfully.");
+            return fileData;
         } catch (IOException e) {
-            System.err.println("Error receiving file: " + e.getMessage());
-            throw new RemoteException("Error receiving file", e);
+            System.err.println("Error sending file: " + e.getMessage());
+            throw new RemoteException("Error sending file", e);
         }
     }
     @Override
