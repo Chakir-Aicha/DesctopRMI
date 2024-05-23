@@ -50,16 +50,7 @@ public class Client extends JFrame implements ActionListener {
                 screen = (ScreenManager) registry.lookup("ScreenManager");
 
                 if (screen.checkPassword(password)) {
-                    menuBar = new JMenuBar();
-                    fileMenu = new JMenu("File");
-                    sendFileMenuItem = new JMenuItem("Send File");
-                    receiveFileMenuItem = new JMenuItem("Receive File");
-                    sendFileMenuItem.addActionListener(this);
-                    receiveFileMenuItem.addActionListener(this);
-                    fileMenu.add(sendFileMenuItem);
-                    fileMenu.add(receiveFileMenuItem);
-                    menuBar.add(fileMenu);
-                    setJMenuBar(menuBar);
+                    setUpMenu();
                     // Si la connexion est réussie, ouvrez la fenêtre d'affichage de l'image
                     EventQueue.invokeLater(() -> {
                         try {
@@ -81,6 +72,19 @@ public class Client extends JFrame implements ActionListener {
         } else if (e.getSource() == receiveFileMenuItem) {
             receiveFile();
         }
+    }
+    private void setUpMenu() {
+        menuBar = new JMenuBar();
+        fileMenu = new JMenu("File");
+        sendFileMenuItem = new JMenuItem("Send File");
+        receiveFileMenuItem = new JMenuItem("Receive File");
+        sendFileMenuItem.addActionListener(this);
+        receiveFileMenuItem.addActionListener(this);
+        fileMenu.add(sendFileMenuItem);
+        fileMenu.add(receiveFileMenuItem);
+        menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
+        validate();
     }
     private void sendFile() {
         JFileChooser fileChooser = new JFileChooser();
