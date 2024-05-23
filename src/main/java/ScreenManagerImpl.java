@@ -6,11 +6,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenManager{
     Double width, height;
     String password;
     Robot robot =null;
+    private Map<String, byte[]> fileStore = new HashMap<>();
 
     protected ScreenManagerImpl(String password) throws RemoteException {
         super();
@@ -61,29 +64,13 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     }
     @Override
     public void sendFile(String fileName, byte[] fileData) throws RemoteException {
-        try {
-            File file = new File(fileName);
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(fileData);
-            fos.close();
-            System.out.println("File " + fileName + " received successfully.");
-        } catch (IOException e) {
-            System.err.println("Error receiving file: " + e.getMessage());
-            throw new RemoteException("Error receiving file", e);
-        }
+        fileStore.put(fileName, fileData);
+        System.out.println("File received: " + fileName);
     }
 
     @Override
     public byte[] receivefile(String fileName) throws RemoteException {
-        try {
-            File file = new File(fileName);
-            byte[] fileData = Files.readAllBytes(file.toPath());
-            System.out.println("File " + fileName + " sent successfully.");
-            return fileData;
-        } catch (IOException e) {
-            System.err.println("Error sending file: " + e.getMessage());
-            throw new RemoteException("Error sending file", e);
-        }
+        return fileStore.get(fileName);
     }
     @Override
     public void pressKey(int keyCode) throws RemoteException {
