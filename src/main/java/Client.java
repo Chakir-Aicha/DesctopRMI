@@ -61,17 +61,29 @@ public class Client extends JFrame implements ActionListener {
                     EventQueue.invokeLater(() -> {
                         try {
                             new ImageWindow(screen);
-                            byte[] fileData = screen.receivefile("serverFile.txt");
-                            Files.write(Paths.get("downloadedFile.txt"), fileData);
-                            System.out.println("File downloaded successfully!");
+                            String downloadFileName = "serverFile.txt";
+                            try {
+                                byte[] fileData = screen.receivefile(downloadFileName);
+                                Files.write(Paths.get("downloaded_" + downloadFileName), fileData);
+                                System.out.println("File downloaded successfully!");
+                            } catch (RemoteException ea) {
+                                System.err.println("Download error: " + ea.getMessage());
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
 
-                            // Upload file example
-                            byte[] uploadData = Files.readAllBytes(Paths.get("localFile.txt"));
-                            screen.sendFile("uploadedFile.txt", uploadData);
-                            System.out.println("upload successfully");
+                            // Envoyer un fichier
+                            String uploadFileName = "localFile.txt";
+                            try {
+                                byte[] uploadData = Files.readAllBytes(Paths.get(uploadFileName));
+                                screen.sendFile("uploaded_" + uploadFileName, uploadData);
+                                System.out.println("succes");
+                            } catch (RemoteException ae) {
+                                System.err.println("Upload error: " + ae.getMessage());
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
                         } catch (RemoteException ex) {
-                            ex.printStackTrace();
-                        } catch (IOException ex) {
                             ex.printStackTrace();
                         }
                         dispose(); // Ferme la fenêtre de connexion

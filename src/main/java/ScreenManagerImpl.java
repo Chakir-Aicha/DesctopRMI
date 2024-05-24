@@ -77,12 +77,13 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     public void sendFile(String fileName, byte[] fileData) throws RemoteException {
         try {
             File file = new File(fileName);
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(fileData);
-            fos.close();
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(fileData);
+            }
+            System.out.println( "File uploaded successfully: " + fileName);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RemoteException("Error in writing file");
+            throw new RemoteException("Error writing file: " + e.getMessage());
         }
     }
 
@@ -90,14 +91,17 @@ public class ScreenManagerImpl extends UnicastRemoteObject implements ScreenMana
     public byte[] receivefile(String fileName) throws RemoteException {
         try {
             File file = new File(fileName);
+            if (!file.exists()) {
+                throw new RemoteException("File not found: " + fileName);
+            }
             byte[] fileData = new byte[(int) file.length()];
-            FileInputStream fis = new FileInputStream(file);
-            fis.read(fileData);
-            fis.close();
+            try (FileInputStream fis = new FileInputStream(file)) {
+                fis.read(fileData);
+            }
             return fileData;
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RemoteException("File not found or error in reading file");
+            throw new RemoteException("Error reading file: " + e.getMessage());
         }
     }
     @Override
