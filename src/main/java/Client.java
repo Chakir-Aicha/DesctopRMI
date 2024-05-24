@@ -19,10 +19,6 @@ import java.util.Random;
 public class Client extends JFrame implements ActionListener {
     private JButton connectButton;
     private JLabel passwordLabel;
-    JMenu fileMenu;
-    private JMenuBar menuBar;
-    private JMenuItem sendFileMenuItem;
-    private JMenuItem receiveFileMenuItem;
     private ScreenManager screen;
 
     public Client() {
@@ -61,7 +57,8 @@ public class Client extends JFrame implements ActionListener {
                     EventQueue.invokeLater(() -> {
                         try {
                             new ImageWindow(screen);
-                            String downloadFileName = "serverFile.txt";
+
+                            /* String downloadFileName = "serverFile.txt";
                             try {
                                 byte[] fileData = screen.receivefile(downloadFileName);
                                 Files.write(Paths.get("downloaded_" + downloadFileName), fileData);
@@ -73,20 +70,20 @@ public class Client extends JFrame implements ActionListener {
                             }
 
                             // Envoyer un fichier
-                            String uploadFileName = "localFile.txt";
+                            String uploadFileName = "src/localFile.txt";
                             try {
                                 byte[] uploadData = Files.readAllBytes(Paths.get(uploadFileName));
-                                screen.sendFile("uploaded_" + uploadFileName, uploadData);
+                                screen.sendFile(uploadFileName, uploadData);
                                 System.out.println("succes");
                             } catch (RemoteException ae) {
                                 System.err.println("Upload error: " + ae.getMessage());
                             } catch (IOException ex) {
                                 ex.printStackTrace();
-                            }
+                            }*/
                         } catch (RemoteException ex) {
                             ex.printStackTrace();
                         }
-                        dispose(); // Ferme la fenêtre de connexion
+                        dispose();
                     });
                 } else {
                     JOptionPane.showMessageDialog(this, "Invalid Password", "Error", JOptionPane.ERROR_MESSAGE);
@@ -95,12 +92,9 @@ public class Client extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Connection Failed: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             }
-        } else if (e.getSource() == sendFileMenuItem) {
-            sendFile();
-        } else if (e.getSource() == receiveFileMenuItem) {
-            receiveFile();
         }
     }
+
     private String generateRandomPassword() {
         Random random = new Random();
         StringBuilder password = new StringBuilder();
@@ -108,19 +102,6 @@ public class Client extends JFrame implements ActionListener {
             password.append(random.nextInt(10));
         }
         return password.toString();
-    }
-    private void setUpMenu() {
-        menuBar = new JMenuBar();
-        fileMenu = new JMenu("File");
-        sendFileMenuItem = new JMenuItem("Send File");
-        receiveFileMenuItem = new JMenuItem("Receive File");
-        sendFileMenuItem.addActionListener(this);
-        receiveFileMenuItem.addActionListener(this);
-        fileMenu.add(sendFileMenuItem);
-        fileMenu.add(receiveFileMenuItem);
-        menuBar.add(fileMenu);
-        setJMenuBar(menuBar);
-        validate();
     }
     private void sendFile() {
         JFileChooser fileChooser = new JFileChooser();
@@ -130,8 +111,10 @@ public class Client extends JFrame implements ActionListener {
             try {
                 byte[] fileData = Files.readAllBytes(file.toPath());
                 screen.sendFile(file.getName(), fileData);
+                JOptionPane.showMessageDialog(this, "File sent successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "File transfer failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -146,8 +129,10 @@ public class Client extends JFrame implements ActionListener {
                 try (FileOutputStream fos = new FileOutputStream(file)) {
                     fos.write(fileData);
                 }
+                JOptionPane.showMessageDialog(this, "File received successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "File transfer failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -159,6 +144,10 @@ public class Client extends JFrame implements ActionListener {
         private ScreenManager screenManager;
         private JLabel imageLabel;
         private double localWidth, localHeight, remoteWidth, remoteHeight;
+        private JMenuBar menuBar;
+        private JMenu fileMenu;
+        private JMenuItem sendFileMenuItem;
+        private JMenuItem receiveFileMenuItem;
 
         public ImageWindow(ScreenManager screenManager) throws RemoteException {
             this.screenManager = screenManager;
@@ -172,7 +161,7 @@ public class Client extends JFrame implements ActionListener {
             addKeyListener(this);
             setFocusable(true);
             setFocusTraversalKeysEnabled(false);
-            setUpMenu();
+            initializeMenu();
             setVisible(true);
             // Écouter les événements de redimensionnement de la fenêtre
             addComponentListener(new ComponentAdapter() {
@@ -306,6 +295,40 @@ public class Client extends JFrame implements ActionListener {
         @Override
         public void mouseExited(MouseEvent e) {
 
+        }
+        private void initializeMenu() {
+            menuBar = new JMenuBar();
+            fileMenu = new JMenu("File");
+
+            sendFileMenuItem = new JMenuItem("Send File");
+            sendFileMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    sendFile();
+                }
+            });
+            fileMenu.add(sendFileMenuItem);
+
+            receiveFileMenuItem = new JMenuItem("Receive File");
+            receiveFileMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String downloadFileName = "src/serverFile.txt";
+                    try {
+                        byte[] fileData = screen.receivefile(downloadFileName);
+                        Files.write(Paths.get( downloadFileName), fileData);
+                        System.out.println("File downloaded successfully!");
+                    } catch (RemoteException ea) {
+                        System.err.println("Download error: " + ea.getMessage());
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+            fileMenu.add(receiveFileMenuItem);
+
+            menuBar.add(fileMenu);
+            setJMenuBar(menuBar);
         }
     }
 
