@@ -57,6 +57,7 @@ public class Serveur extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String password = passwordField.getText();
+        System.out.println("Generated Password: " + password);
         try {
             screenManager = new ScreenManagerImpl(password);
         } catch (RemoteException ex) {
@@ -74,28 +75,7 @@ public class Serveur extends JFrame implements ActionListener {
                 ex.printStackTrace();
             }
         }
-        if (e.getSource() == sendFileButton) {
-            JFileChooser fileChooser = new JFileChooser();
-            int result = fileChooser.showOpenDialog(this);
-            if (result == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                try {
-                    byte[] fileData = Files.readAllBytes(file.toPath());
-                    screenManager.sendFile(file.getName(), fileData);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-    }
-    private void showSendFileButton() {
-        sendFileButton = new JButton("Send File");
-        sendFileButton.addActionListener(this);
-        add(sendFileButton);
 
-        // Redimensionner la fenêtre pour s'adapter au nouveau bouton
-        setSize(300, 250);
-        validate();
     }
 
     public static void main(String[] args) {

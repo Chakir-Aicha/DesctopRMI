@@ -9,34 +9,40 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.awt.event.*;
 import java.rmi.RemoteException;
+import java.util.Random;
+
 public class Client extends JFrame implements ActionListener {
-    private JTextField ipField;
-    private JTextField passwordField;
     private JButton connectButton;
+    private JLabel passwordLabel;
     JMenu fileMenu;
     private JMenuBar menuBar;
     private JMenuItem sendFileMenuItem;
     private JMenuItem receiveFileMenuItem;
-    private ScreenManager screen; // Référence à l'interface Screen
+    private ScreenManager screen;
 
     public Client() {
         setTitle("Connect to Server");
         setSize(300, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        setLayout(new GridLayout(2, 1));
 
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Password:"));
-        passwordField = new JTextField(15);
-        panel.add(passwordField);
+        // Label pour le mot de passe généré
+        passwordLabel = new JLabel("Generated Password: " + generateRandomPassword(), SwingConstants.CENTER);
+        add(passwordLabel);
+
+        // Panneau pour le bouton de connexion
+        JPanel bottomPanel = new JPanel(new FlowLayout());
         connectButton = new JButton("Connect");
         connectButton.addActionListener(this);
-        panel.add(connectButton);
-        add(panel);
+        bottomPanel.add(connectButton);
+
+        add(bottomPanel);
         setVisible(true);
 
     }
@@ -45,17 +51,27 @@ public class Client extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == connectButton) {
             try {
-                String password = passwordField.getText();
-                Registry registry = LocateRegistry.getRegistry("192.168.137.1", 1099);
+                String password = passwordLabel.getText().split(": ")[1];
+                System.out.println("Generated Password: " + password);
+                Registry registry = LocateRegistry.getRegistry("192.168.137.188", 1099);
+                //Registry registry = LocateRegistry.getRegistry("localhost", 1099);
                 screen = (ScreenManager) registry.lookup("ScreenManager");
 
                 if (screen.checkPassword(password)) {
-                    setUpMenu();
-                    // Si la connexion est réussie, ouvrez la fenêtre d'affichage de l'image
                     EventQueue.invokeLater(() -> {
                         try {
                             new ImageWindow(screen);
+                            byte[] fileData = screen.receivefile("serverFile.txt");
+                            Files.write(Paths.get("downloadedFile.txt"), fileData);
+                            System.out.println("File downloaded successfully!");
+
+                            // Upload file example
+                            byte[] uploadData = Files.readAllBytes(Paths.get("localFile.txt"));
+                            screen.sendFile("uploadedFile.txt", uploadData);
+                            System.out.println("upload successfully");
                         } catch (RemoteException ex) {
+                            ex.printStackTrace();
+                        } catch (IOException ex) {
                             ex.printStackTrace();
                         }
                         dispose(); // Ferme la fenêtre de connexion
@@ -72,6 +88,14 @@ public class Client extends JFrame implements ActionListener {
         } else if (e.getSource() == receiveFileMenuItem) {
             receiveFile();
         }
+    }
+    private String generateRandomPassword() {
+        Random random = new Random();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            password.append(random.nextInt(10));
+        }
+        return password.toString();
     }
     private void setUpMenu() {
         menuBar = new JMenuBar();
@@ -136,7 +160,9 @@ public class Client extends JFrame implements ActionListener {
             addKeyListener(this);
             setFocusable(true);
             setFocusTraversalKeysEnabled(false);
-            // Écouteur pour les événements de redimensionnement
+            setUpMenu();
+            setVisible(true);
+            // Écouter les événements de redimensionnement de la fenêtre
             addComponentListener(new ComponentAdapter() {
                 @Override
                 public void componentResized(ComponentEvent e) {
@@ -144,8 +170,8 @@ public class Client extends JFrame implements ActionListener {
                     localHeight = imageLabel.getHeight();
                 }
             });
-            // Lancer un thread pour mettre à jour périodiquement l'image
-            new Timer(1000 / 10, e -> updateImage()).start(); // Mettre à jour l'image 10 fois par seconde
+            // Mettre à jour l'image toutes les 100 ms
+            new Timer(1000 / 10, e -> updateImage()).start();
             localWidth = getWidth();
             localHeight = getHeight();
             remoteWidth = screenManager.getWidth();
