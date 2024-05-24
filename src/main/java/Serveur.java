@@ -69,7 +69,6 @@ public class Serveur extends JFrame implements ActionListener {
                 Registry registry = LocateRegistry.createRegistry(1099);
                 registry.rebind("ScreenManager", screenManager);
                 JOptionPane.showMessageDialog(this, "Server is connected and ready!");
-                showSendFileButton();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
