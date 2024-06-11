@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.InetAddress;
@@ -9,7 +10,7 @@ import java.rmi.registry.Registry;
  * La classe Serveur représente l'interface graphique côté serveur pour configurer et démarrer le serveur.
  * Elle étend JFrame et implémente ActionListener pour gérer les événements de l'interface.
  *
- * La fenêtre affiche un champ de texte pour saisir un mot de passe, les adresses IP privée et publique du serveur,
+ * La fenêtre affiche un champ de texte pour saisir un mot de passe, l'adresse IP privée du serveur,
  * et un bouton "Connect".
  *
  * Lorsque le bouton "Connect" est cliqué, la méthode actionPerformed() est appelée.
@@ -18,10 +19,6 @@ import java.rmi.registry.Registry;
  *
  * La classe Serveur est responsable de l'interface utilisateur côté serveur et de la configuration initiale
  * du serveur. Elle crée l'objet ScreenManager qui gère les connexions clientes et les interactions avec l'écran.
- *
- * La méthode getPublicIP() est une méthode utilitaire qui récupère l'adresse IP publique du serveur.
- * Dans cet exemple, elle retourne simplement l'adresse IP locale, mais pourrait être modifiée pour récupérer
- * l'adresse IP publique de manière plus précise.
  */
 public class Serveur extends JFrame implements ActionListener {
     private JTextField passwordField;
@@ -29,28 +26,37 @@ public class Serveur extends JFrame implements ActionListener {
     private JButton connectButton;
     private ScreenManager screenManager;
     public Serveur() {
-        setTitle("Server Configuration");
-        setSize(300, 200);
+        setTitle("Server");
+        setSize(300, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
-        add(new JLabel("Enter Password:"));
+        JPanel passwordPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        passwordPanel.add(new JLabel("Enter Password:"));
         passwordField = new JTextField(20);
-        add(passwordField);
-        // Ajout des labels pour les adresses IP
+        passwordPanel.add(passwordField);
+        add(passwordPanel);
+        // Ajout un label pour l'adresse IP
+        add(Box.createRigidArea(new Dimension(0, 7)));
         try {
             InetAddress localHost = InetAddress.getLocalHost();
             privateIPLabel = new JLabel("Private IP: " + localHost.getHostAddress());
+            privateIPLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             add(privateIPLabel);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // Ajout du bouton de connexion
+
+        // Ajouter un espace rigide pour séparer les composants
+        add(Box.createRigidArea(new Dimension(0, 10)));
+
         connectButton = new JButton("Connect");
+        connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         connectButton.addActionListener(this);
         add(connectButton);
-        // Afficher la fenêtre
+
         setVisible(true);
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         String password = passwordField.getText();
