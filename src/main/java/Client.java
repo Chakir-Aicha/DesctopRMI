@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,32 +14,44 @@ import java.rmi.registry.Registry;
 import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.util.Random;
+/**
+ * La classe Client représente l'interface graphique côté client pour se connecter à un serveur distant.
+ * Elle étend JFrame et implémente ActionListener pour gérer les événements de l'interface.
+ *
+ * La fenêtre affiche un mot de passe généré aléatoirement et un bouton "Connect".
+ * Lorsque le bouton est cliqué, la méthode actionPerformed() est appelée.
+ *
+ * Dans actionPerformed(), le client tente de se connecter au serveur en utilisant le mot de passe généré.
+ * Si le mot de passe est correct, une nouvelle fenêtre ImageWindow est ouverte pour afficher l'écran distant.
+ * Sinon, un message d'erreur est affiché.
+ *
+ * La classe contient également deux méthodes utilitaires :
+ *
+ * - generateRandomPassword() génère un mot de passe aléatoire de 6 chiffres.
+ * - sendFile() ouvre une boîte de dialogue pour sélectionner un fichier à envoyer au serveur.
+ *   Le fichier sélectionné est lu et envoyé au serveur via la méthode sendFile() de l'objet ScreenManager.
+ */
 
 public class Client extends JFrame implements ActionListener {
     private JButton connectButton;
     private JLabel passwordLabel;
     private ScreenManager screen;
-
     public Client() {
         setTitle("Connect to Server");
         setSize(300, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
         setLayout(new GridLayout(2, 1));
-
         // Label pour le mot de passe généré
         passwordLabel = new JLabel("Generated Password: " + generateRandomPassword(), SwingConstants.CENTER);
         add(passwordLabel);
-
         // Panneau pour le bouton de connexion
         JPanel bottomPanel = new JPanel(new FlowLayout());
         connectButton = new JButton("Connect");
         connectButton.addActionListener(this);
         bottomPanel.add(connectButton);
-
         add(bottomPanel);
         setVisible(true);
-
     }
 
     @Override
@@ -57,29 +68,6 @@ public class Client extends JFrame implements ActionListener {
                     EventQueue.invokeLater(() -> {
                         try {
                             new ImageWindow(screen);
-
-                            /* String downloadFileName = "serverFile.txt";
-                            try {
-                                byte[] fileData = screen.receivefile(downloadFileName);
-                                Files.write(Paths.get("downloaded_" + downloadFileName), fileData);
-                                System.out.println("File downloaded successfully!");
-                            } catch (RemoteException ea) {
-                                System.err.println("Download error: " + ea.getMessage());
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            }
-
-                            // Envoyer un fichier
-                            String uploadFileName = "src/localFile.txt";
-                            try {
-                                byte[] uploadData = Files.readAllBytes(Paths.get(uploadFileName));
-                                screen.sendFile(uploadFileName, uploadData);
-                                System.out.println("succes");
-                            } catch (RemoteException ae) {
-                                System.err.println("Upload error: " + ae.getMessage());
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            }*/
                         } catch (RemoteException ex) {
                             ex.printStackTrace();
                         }
@@ -94,7 +82,7 @@ public class Client extends JFrame implements ActionListener {
             }
         }
     }
-
+    // Fonction pour générer un mot de passe aléatoire
     private String generateRandomPassword() {
         Random random = new Random();
         StringBuilder password = new StringBuilder();
@@ -103,6 +91,7 @@ public class Client extends JFrame implements ActionListener {
         }
         return password.toString();
     }
+    // Fonction pour envoyer un fichier
     private void sendFile() {
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showOpenDialog(this);
@@ -118,28 +107,24 @@ public class Client extends JFrame implements ActionListener {
             }
         }
     }
-
-    private void receiveFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            try {
-                byte[] fileData = screen.receivefile(file.getName());
-                try (FileOutputStream fos = new FileOutputStream(file)) {
-                    fos.write(fileData);
-                }
-                JOptionPane.showMessageDialog(this, "File received successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "File transfer failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-    }
-    public static void main(String[] args) {
-        new Client();
-    }
-
+    /**
+     * La classe ImageWindow est une fenêtre graphique qui affiche l'écran d'un ordinateur distant.
+     * Elle étend JFrame et implémente les interfaces KeyListener, MouseListener et MouseMotionListener
+     * pour gérer les événements de clavier et de souris.
+     *
+     * Cette classe est liée à un objet ScreenManager qui gère la communication avec l'ordinateur distant.
+     * Elle affiche l'écran distant dans un JLabel, en mettant à jour l'image toutes les 100 ms.
+     *
+     * La fenêtre dispose également d'un menu avec deux options :
+     * - "Send File" qui permet d'envoyer un fichier à l'ordinateur distant.
+     * - "Receive File" qui permet de recevoir un fichier de l'ordinateur distant.
+     *
+     * Les événements de clavier et de souris sont transmis à l'ordinateur distant via l'objet ScreenManager.
+     * Les coordonnées de la souris sont adaptées à la résolution de l'écran distant.
+     *
+     * La fenêtre s'adapte également au redimensionnement, en mettant à jour les dimensions locales
+     * et en recalculant les échelles pour les coordonnées de la souris.
+     */
     public class ImageWindow extends JFrame implements KeyListener, MouseListener,MouseMotionListener {
         private ScreenManager screenManager;
         private JLabel imageLabel;
@@ -199,53 +184,41 @@ public class Client extends JFrame implements ActionListener {
                 e.printStackTrace();
             }
         }
-
-
-
         @Override
         public void keyTyped(KeyEvent e) {
             try {
-                System.out.println("Server: key typed");
                 screenManager.keyTyped(e.getKeyCode());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
         @Override
         public void keyPressed(KeyEvent e) {
             try {
-                System.out.println("Server: key pressed");
                 screenManager.pressKey(e.getKeyCode());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
         @Override
         public void keyReleased(KeyEvent e) {
             try {
-                System.out.println("Server: key released");
                 screenManager.releaseKey(e.getKeyCode());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
         @Override
         public void mouseDragged(MouseEvent e) {
             try {
-                System.out.println("Server: Mouse dragged");
                 screenManager.mouseDragged(e.getX(), e.getY());
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
         @Override
         public void mouseMoved(MouseEvent e) {
             try {
-                System.out.println("Server: Mouse mouved");
                 Point p = getRemoteCoordinates(e.getX(), e.getY());
                 screenManager.moveMouse(p.x, p.y);
             } catch (RemoteException ex) {
@@ -255,51 +228,41 @@ public class Client extends JFrame implements ActionListener {
         @Override
         public void mouseClicked(MouseEvent e) {
             try {
-                System.out.println("mouse clicked");
                 Point p = getRemoteCoordinates(e.getX(), e.getY());
                 screenManager.clickMouse(p.x,p.y);
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
         @Override
         public void mousePressed(MouseEvent e) {
             try {
                 int button = e.getButton();
                 Point p = getRemoteCoordinates(e.getX(), e.getY());
                 screenManager.mousePressed(p.x,p.y,button);
-                System.out.println("mouse pressed");
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
         @Override
         public void mouseReleased(MouseEvent e) {
             try {
                 int button = e.getButton();
                 Point p = getRemoteCoordinates(e.getX(), e.getY());
                 screenManager.mouseReleased(p.x,p.y,button);
-                System.out.println("mouse released");
             } catch (RemoteException ex) {
                 ex.printStackTrace();
             }
         }
-
         @Override
         public void mouseEntered(MouseEvent e) {
-
         }
-
         @Override
         public void mouseExited(MouseEvent e) {
-
         }
         private void initializeMenu() {
             menuBar = new JMenuBar();
             fileMenu = new JMenu("File");
-
             sendFileMenuItem = new JMenuItem("Send File");
             sendFileMenuItem.addActionListener(new ActionListener() {
                 @Override
@@ -308,7 +271,6 @@ public class Client extends JFrame implements ActionListener {
                 }
             });
             fileMenu.add(sendFileMenuItem);
-
             receiveFileMenuItem = new JMenuItem("Receive File");
             receiveFileMenuItem.addActionListener(new ActionListener() {
                 @Override
@@ -326,10 +288,8 @@ public class Client extends JFrame implements ActionListener {
                 }
             });
             fileMenu.add(receiveFileMenuItem);
-
             menuBar.add(fileMenu);
             setJMenuBar(menuBar);
         }
     }
-
 }
